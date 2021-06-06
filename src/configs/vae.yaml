@@ -1,0 +1,28 @@
+
+model_params:
+  name: 'VanillaVAE'
+  experiment: 'DualDecoderVAExperiment'
+  in_channels: 3
+  latent_dim: 512
+
+exp_params:
+  dataset: imagenet
+  data_path: "../../data/processed/"
+  img_size: 64
+  batch_size: 64 # Better to have a square number
+  LR: 0.0005
+  weight_decay: 0.01
+  scheduler_gamma: 0.95
+  gradient_clip: 100.0
+
+trainer_params:
+  gpus: 1
+  max_epochs: 300
+
+checkpoint_callback:
+  monitor: val_acc1
+
+logging_params:
+  save_dir: "../visualization/logs/"
+  name: "VAE"
+  manual_seed: 42
