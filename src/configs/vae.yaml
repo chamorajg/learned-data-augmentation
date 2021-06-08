@@ -19,9 +19,6 @@ trainer_params:
   gpus: 1
   max_epochs: 300
 
-checkpoint_callback:
-  monitor: val_acc1
-
 logging_params:
   save_dir: "../visualization/logs/"
   name: "VAE"
