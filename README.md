@@ -26,6 +26,6 @@
 > 1.) and 3.) gave satisfactory results, 3.) gave much more clear and good results compared as the generalization was better compared to 1.).
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-> I have written a paper about solution 1.) attached in the repository.
+> I have attached a pdf document about the solution 1.) attached in the repository inside procedure directory.
 
 > To compare the generalization of various VAEs we used the encoder part of the architecture to classify the images by augmenting fully connected network on top of the encoder replacing the decoder with encoder parameters being frozen.
