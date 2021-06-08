@@ -2,7 +2,7 @@
 # Learned Data Augmentation.
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-> Here is the [link](https://openai.com/blog/requests-for-research-2/) for the research problem statement.
+> Here is the [link](https://openai.com/blog/requests-for-research-2/) for the research problem statement. The baseline model architecture has been largely adopted from this [repo](https://github.com/AntixK/PyTorch-VAE). 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 > #### To work on Tiny ImageNet dataset, dataset has to be downloaded using the command line. Here are the following steps:
