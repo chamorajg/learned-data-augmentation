@@ -11,6 +11,14 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.logging import TestTubeLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
 
+from .experiment import VAEXperiment
+from .classification import VAEClassification
+from .dual_decoder_experiment import DualDecoderVAEXperiment
+
+vae_experiments = {
+    'VAEXperiment': VAEXperiment,
+    'VAEClassification': VAEClassification,
+    'DualDecoderVAEXperiment': DualDecoderVAEXperiment,}
 
 parser = argparse.ArgumentParser(description='Generic runner for VAE models')
 parser.add_argument('--config',  '-c',

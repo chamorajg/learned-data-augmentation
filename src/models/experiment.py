@@ -1,8 +1,5 @@
 import sys
-import math
 import torch
-import numpy as np
-import matplotlib.pyplot as plt
 from torch import optim
 from models import BaseVAE
 from models.types_ import *
@@ -54,14 +51,16 @@ class VAEXperiment(pl.LightningModule):
         return train_loss
 
     def validation_step(self, batch, batch_idx, optimizer_idx = 0):
-        real_img, labels = batch
+        imgs, labels = batch
+        real_img, transform_img = imgs[0], imgs[1]
         self.curr_device = real_img.device
 
         results = self.forward(real_img, labels = labels)
         val_loss = self.model.loss_function(*results,
                                             M_N = self.params['batch_size']/ self.num_val_imgs,
                                             optimizer_idx = optimizer_idx,
-                                            batch_idx = batch_idx)
+                                            batch_idx = batch_idx,
+                                            real_img = real_img)
 
         return val_loss
 
@@ -70,25 +69,6 @@ class VAEXperiment(pl.LightningModule):
         tensorboard_logs = {'avg_val_loss': avg_loss}
         self.sample_images()
         return {'val_loss': avg_loss, 'log': tensorboard_logs}
-
-    def save_plots(self, data):
-        mean = data[0].data.cpu()
-        var = torch.abs(data[1]).data.cpu()
-        # print(mu.shape)
-        total_images = mean.shape[0]
-        fig, ax = plt.subplots(8, total_images // 8)
-        # plt.axis('off')
-        for i in range(total_images):
-            mu = mean[i][0]
-            variance = var[i][0]
-            # print(variance)
-            sigma = math.sqrt(variance)
-            x = np.linspace(-50, 50, 1000)
-            ax[i // 8, i % 8].plot(x, norm.pdf(x, mu, sigma))
-            ax[i // 8, i % 8].axis('off')
-        plt.savefig(f"{self.logger.save_dir}{self.logger.name}/version_{self.logger.version}/"
-                    f"distribution_{self.logger.name}.png", transparent=False)
-        plt.close()
 
     def sample_images(self):
         test_input, test_label = next(iter(self.sample_dataloader))
@@ -105,7 +85,6 @@ class VAEXperiment(pl.LightningModule):
                           f"recons_{self.logger.name}_input_{self.current_epoch}.png",
                           normalize=True,
                           nrow=8)
-        # self.save_plots(recons[1])
         try:
             samples = self.model.sample(self.params['batch_size'],
                                         self.curr_device,
@@ -161,7 +140,6 @@ class VAEXperiment(pl.LightningModule):
     # @data_loader
     def train_dataloader(self):
         transform = self.data_transforms()
-        target_transform = self.target_transforms()
         if self.params['dataset'] == 'celeba':
             dataset = CelebA(root = self.params['data_path'],
                                 split='train',
@@ -176,7 +154,7 @@ class VAEXperiment(pl.LightningModule):
         elif self.params['dataset'] == 'imagenet':
             dataset = Dataset(mode='train', 
                                 transform=transform,
-                                target_transform=target_transform)
+                                img_size=self.params['img_size'])
         else:
             raise ValueError('Undefined dataset type')
 
@@ -213,7 +191,8 @@ class VAEXperiment(pl.LightningModule):
                                                 )
         elif self.params['dataset'] == 'imagenet':
             self.sample_dataloader = DataLoader(Dataset(mode='valid', 
-                                                 transform=transform,),
+                                                 transform=transform,
+                                                 img_size=self.params['img_size']),
                                                  batch_size= self.params['batch_size'],
                                                  shuffle=False,
                                                  num_workers=4,
@@ -226,12 +205,6 @@ class VAEXperiment(pl.LightningModule):
     def data_transforms(self):
         transform = transforms.Compose([
                                         self.test_transform,
-                                        transforms.Resize(self.params['img_size']),
-                                        transforms.ToTensor(),])
-        return transform
-    
-    def target_transforms(self):
-        transform = transforms.Compose([
                                         transforms.Resize(self.params['img_size']),
                                         transforms.ToTensor(),])
         return transform

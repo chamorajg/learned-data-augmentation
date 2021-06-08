@@ -113,10 +113,8 @@ class VAEClassification(pl.LightningModule):
         except:
             return optims
 
-    # @data_loader
     def train_dataloader(self):
         transform = self.data_transforms()
-        target_transform = self.target_transforms()
         if self.params['dataset'] == 'celeba':
             dataset = CelebA(root = self.params['data_path'],
                                 split='train',
@@ -145,7 +143,6 @@ class VAEClassification(pl.LightningModule):
     # @data_loader
     def val_dataloader(self):
         transform = self.val_data_transforms()
-
         if self.params['dataset'] == 'celeba':
             self.sample_dataloader =  DataLoader(CelebA(root = self.params['data_path'],
                                                         split='test',
@@ -168,7 +165,8 @@ class VAEClassification(pl.LightningModule):
                                                 )
         elif self.params['dataset'] == 'imagenet':
             self.sample_dataloader = DataLoader(Dataset(mode='valid', 
-                                                 transform=transform,),
+                                                 transform=transform,
+                                                 img_size=self.params['img_size']),
                                                  batch_size= self.params['batch_size'],
                                                  shuffle=False,
                                                  num_workers=4,
@@ -181,12 +179,6 @@ class VAEClassification(pl.LightningModule):
     def data_transforms(self):
         transform = transforms.Compose([
                                         # self.test_transform,
-                                        transforms.Resize(self.params['img_size']),
-                                        transforms.ToTensor(),])
-        return transform
-    
-    def target_transforms(self):
-        transform = transforms.Compose([
                                         transforms.Resize(self.params['img_size']),
                                         transforms.ToTensor(),])
         return transform

@@ -25,7 +25,6 @@ class DualDecoderVAEXperiment(pl.LightningModule):
         self.curr_device = None
         self.hold_graph = False
         self.test_transform = transforms.ColorJitter(brightness=(0.2, 0.5), contrast=(0.2, 0.5))
-        #, translate=(0, 0.25), scale=(0.75, 1), shear=0.2)
         try:
             self.hold_graph = self.params['retain_first_backpass']
         except:
@@ -166,7 +165,7 @@ class DualDecoderVAEXperiment(pl.LightningModule):
         elif self.params['dataset'] == 'imagenet':
             dataset = Dataset(mode='train', 
                                 transform=transform,
-                                target_transform=target_transform)
+                                img_size=self.params['img_size'])
         else:
             raise ValueError('Undefined dataset type')
 
@@ -206,7 +205,7 @@ class DualDecoderVAEXperiment(pl.LightningModule):
         elif self.params['dataset'] == 'imagenet':
             self.sample_dataloader = DataLoader(Dataset(mode='valid', 
                                                  transform=transform,
-                                                 target_transform=target_transform),
+                                                 img_size=self.params['img_size']),
                                                  batch_size= self.params['batch_size'],
                                                  shuffle=False,
                                                  num_workers=4,
@@ -220,12 +219,6 @@ class DualDecoderVAEXperiment(pl.LightningModule):
     def data_transforms(self):
         transform = transforms.Compose([
                                         self.test_transform,
-                                        transforms.Resize(self.params['img_size']),
-                                        transforms.ToTensor(),])
-        return transform
-    
-    def target_transforms(self):
-        transform = transforms.Compose([
                                         transforms.Resize(self.params['img_size']),
                                         transforms.ToTensor(),])
         return transform
